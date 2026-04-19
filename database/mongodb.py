@@ -1,10 +1,7 @@
-# Copyright ©️ 2022 TeLe TiPs. All Rights Reserved
-# MongoDB Integration Module
-
 import os
+import logging
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +17,14 @@ def get_client():
         try:
             _client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
             _client.admin.command("ping")
-            logger.info("✅ MongoDB connected successfully.")
+            logger.info("MongoDB connected.")
         except ConnectionFailure as e:
-            logger.warning(f"⚠️ MongoDB connection failed: {e}. Running without DB.")
+            logger.warning(f"MongoDB connection failed: {e}. Running without DB.")
             _client = None
     return _client
 
 
-def get_db(db_name: str = "teletips"):
+def get_db(db_name="teletips"):
     global _db
     client = get_client()
     if client is not None:
@@ -35,21 +32,18 @@ def get_db(db_name: str = "teletips"):
     return _db
 
 
-# ─── User helpers ────────────────────────────────────────────────────────────
-
-def add_user(user_id: int, username: str = None, full_name: str = None):
+def add_user(user_id, username=None, full_name=None):
     db = get_db()
     if db is None:
         return
-    users = db["users"]
-    users.update_one(
+    db["users"].update_one(
         {"_id": user_id},
         {"$set": {"username": username, "full_name": full_name}},
         upsert=True,
     )
 
 
-def get_user(user_id: int):
+def get_user(user_id):
     db = get_db()
     if db is None:
         return None
@@ -63,17 +57,14 @@ def get_all_users():
     return list(db["users"].find({}, {"_id": 1}))
 
 
-def total_users() -> int:
+def total_users():
     db = get_db()
     if db is None:
         return 0
     return db["users"].count_documents({})
 
 
-# ─── Stats helpers ───────────────────────────────────────────────────────────
-
-def increment_upload(user_id: int):
-    """Track how many files a user has uploaded."""
+def increment_upload(user_id):
     db = get_db()
     if db is None:
         return
@@ -84,7 +75,7 @@ def increment_upload(user_id: int):
     )
 
 
-def get_upload_count(user_id: int) -> int:
+def get_upload_count(user_id):
     db = get_db()
     if db is None:
         return 0
@@ -92,7 +83,7 @@ def get_upload_count(user_id: int) -> int:
     return doc.get("uploads", 0) if doc else 0
 
 
-def total_uploads() -> int:
+def total_uploads():
     db = get_db()
     if db is None:
         return 0
