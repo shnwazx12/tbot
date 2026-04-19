@@ -1,5 +1,14 @@
+import asyncio
 import os
 import logging
+
+# Fix for Python 3.10+ — must run before any pyrogram import
+try:
+    loop = asyncio.get_event_loop()
+except RuntimeError:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
 from pyrogram import Client
 from modules import load_all
 from port import run_in_background
