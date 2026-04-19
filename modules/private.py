@@ -24,10 +24,25 @@ def register(app):
             os.makedirs(MEDIA_DIR, exist_ok=True)
             local_path = await message.download(MEDIA_DIR, progress=progress)
             await text.edit_text("📤 Uploading to Telegraph...")
-            upload_path = upload_file(local_path)
-            telegraph_url = f"https://telegra.ph{upload_path[0]}"
+
+            result = upload_file(local_path)
+
+            # Handle all return types: list, dict, or raw string
+            if isinstance(result, list):
+                path = result[0]
+            elif isinstance(result, dict):
+                path = result.get("src") or result.get("path") or str(result)
+            else:
+                path = str(result)
+
+            # Ensure it starts with /
+            if not path.startswith("/"):
+                path = "/" + path
+
+            telegraph_url = f"https://telegra.ph{path}"
             increment_upload(user.id)
             await text.edit_text(f"**🌐 Telegraph Link:**\n\n`{telegraph_url}`")
+
         except Exception as e:
             await text.edit_text(f"**❌ Upload failed**\n\n**Reason:** `{e}`")
         finally:
