@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: mediatotelegraphlink
+    env: python
+    region: oregon          # change to your preferred Render region
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    healthCheckPath: /health
+
+    # ── Environment variables ────────────────────────────────────────────────
+    # Set these in the Render dashboard → Environment tab.
+    # Do NOT hard-code secrets here.
+    envVars:
+      - key: API_ID
+        sync: false        # set manually in dashboard
+      - key: API_HASH
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: MONGO_URI
+        sync: false        # e.g. mongodb+srv://user:pass@cluster.mongodb.net/teletips
+      - key: PORT
+        value: "8080"      # Render injects PORT automatically; listed for clarity
