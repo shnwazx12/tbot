@@ -1,13 +1,10 @@
-# Copyright ©️ 2022 TeLe TiPs. All Rights Reserved
-# Module: Private chat media → Telegraph link
-
 import os
 from pyrogram import filters
 from pyrogram.types import Message
 from telegraph import upload_file
 from database import add_user, increment_upload
 
-MEDIA_DIR = "./media/private/"
+MEDIA_DIR = "/tmp/media/private/"
 
 
 def register(app):
@@ -20,8 +17,7 @@ def register(app):
         text = await message.reply("⏳ Processing...")
 
         async def progress(current, total):
-            pct = current * 100 / total
-            await text.edit_text(f"📥 Downloading... {pct:.1f}%")
+            await text.edit_text(f"📥 Downloading... {current * 100 / total:.1f}%")
 
         local_path = None
         try:
@@ -31,9 +27,7 @@ def register(app):
             upload_path = upload_file(local_path)
             telegraph_url = f"https://telegra.ph{upload_path[0]}"
             increment_upload(user.id)
-            await text.edit_text(
-                f"**🌐 Telegraph Link:**\n\n`{telegraph_url}`"
-            )
+            await text.edit_text(f"**🌐 Telegraph Link:**\n\n`{telegraph_url}`")
         except Exception as e:
             await text.edit_text(f"**❌ Upload failed**\n\n**Reason:** `{e}`")
         finally:
